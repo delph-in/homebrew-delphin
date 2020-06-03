@@ -6,6 +6,7 @@ class Repp < Formula
 
   depends_on "automake" => :build
   depends_on "boost" => :build
+  depends_on "gcc" => :build
 
   fails_with :clang
 
