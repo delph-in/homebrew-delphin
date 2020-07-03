@@ -2,6 +2,6 @@ These formulæ provide software providing Natural Language Processing (NLP) capa
 
 How do I install these formulae?
 
-`brew install homebrew/delphin/<formula>`
+`brew install delph-in/delphin/<formula>`
 
-Or `brew tap homebrew/delphin` and then `brew install <formula>`.
+Or `brew tap delph-in/delphin` and then `brew install <formula>`.
