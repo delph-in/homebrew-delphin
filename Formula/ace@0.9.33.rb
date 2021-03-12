@@ -1,8 +1,8 @@
-class Ace < Formula
+class AceAT0933 < Formula
   desc "An efficient processor for DELPH-IN HPSG grammars"
   homepage "http://sweaglesw.org/linguistics/ace/"
-  url "http://sweaglesw.org/linguistics/ace/download/ace-0.9.34.tar.gz"
-  sha256 "65ab649096e3e6432b379170836943c8838ef2086e9cf5df87ce696de54574ae"
+  url "http://sweaglesw.org/linguistics/ace/download/ace-0.9.33.tar.gz"
+  sha256 "dd6c35591134a18f4f78893ac0da33eb25b584c89d6bd0c3ca25efcfb9695895"
 
   depends_on "boost" => :build
   depends_on "delph-in/delphin/repp" => :build
