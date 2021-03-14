@@ -20,9 +20,14 @@ class AceAT0927 < Formula
     inreplace "Makefile", "-Wl,-soname", "-Wl,-install_name"
 
     # Clean up MacOSX.config for gcc
-    inreplace "MacOSX.config", "CFLAGS+=-fnested-functions", "CFLAGS+="
-    inreplace "MacOSX.config", "-lstdc++", "-lc++"
-
+    inreplace "MacOSX.config" do |s|
+       s.gsub! "CFLAGS+=-fnested-functions", "CFLAGS+="
+       s.gsub! "-lstdc++", "-lc++"
+       # support nonstandard install locations
+       s.gsub! "REPP_LIBS=/usr/local", "REPP_LIBS=#{HOMEBREW_PREFIX}"
+       s.gsub! "BOOST_REGEX_LIBS=/usr/local", "BOOST_REGEX_LIBS=#{HOMEBREW_PREFIX}"
+    end
+    
     # Small code changes (for gcc?)
     inreplace "conf.h", "struct path	robustness_marker_path;", "extern struct path	robustness_marker_path;"
     inreplace "conf.h", "char		*robustness_marker_type;", "extern char		*robustness_marker_type;"
