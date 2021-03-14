@@ -3,6 +3,7 @@ class Ace < Formula
   homepage "http://sweaglesw.org/linguistics/ace/"
   url "http://sweaglesw.org/linguistics/ace/download/ace-0.9.34.tar.gz"
   sha256 "65ab649096e3e6432b379170836943c8838ef2086e9cf5df87ce696de54574ae"
+  head "http://sweaglesw.org/svn/ace/trunk", using: :svn
 
   depends_on "boost" => :build
   depends_on "delph-in/delphin/repp" => :build
@@ -24,9 +25,11 @@ class Ace < Formula
     inreplace "MacOSX.config", "-lstdc++", "-lc++"
 
     # Small code changes (for gcc?)
-    inreplace "conf.h", "struct path	robustness_marker_path;", "extern struct path	robustness_marker_path;"
-    inreplace "conf.h", "char		*robustness_marker_type;", "extern char		*robustness_marker_type;"
-    inreplace "type.c", "int		glb_type_count;", "//int		glb_type_count;"
+    if !build.head?
+      inreplace "conf.h", "struct path	robustness_marker_path;", "extern struct path	robustness_marker_path;"
+      inreplace "conf.h", "char		*robustness_marker_type;", "extern char		*robustness_marker_type;"
+      inreplace "type.c", "int		glb_type_count;", "//int		glb_type_count;"
+    end
 
     # Build
     system "make", "ace"
