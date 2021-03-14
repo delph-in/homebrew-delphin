@@ -13,7 +13,6 @@ cask "maclui" do
   binary shimscript, target: "yzlui"
 
   preflight do
-    print shimscript
     File.open(shimscript, "w") do |f|
       f.puts "#!/bin/bash"
       f.puts "exec #{appdir}/maclui.app/Contents/MacOS/maclui -p"
