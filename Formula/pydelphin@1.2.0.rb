@@ -4,7 +4,7 @@ class PydelphinAT120 < Formula
   desc "Python libraries for DELPH-IN"
   homepage "https://github.com/delph-in/pydelphin"
   url "https://github.com/delph-in/pydelphin/archive/v1.2.0.tar.gz"
-  sha256 "1.2.05757504877062477b1e48556182c5156b7cdeb60004fe26be5e3d874194"
+  sha256 "155115757504877062477b1e48556182c5156b7cdeb60004fe26be5e3d874194"
 
   depends_on "delph-in/delphin/ace"
   depends_on "python"
