@@ -31,7 +31,7 @@ jobs:
 
       - run: brew test-bot --only-setup
 
-      - run: brew test-bot --only-tap-syntax
+      - run: brew readall --aliases delph-in/delphin && brew style delph-in/delphin --except-cops Layout/LineLength && brew audit --tap=delph-in/delphin
 
       - run: brew test-bot --only-formulae
         if: github.event_name == 'pull_request'
