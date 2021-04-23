@@ -1,5 +1,5 @@
 class AceAT0926 < Formula
-  desc "An efficient processor for DELPH-IN HPSG grammars"
+  desc "Efficient processor for DELPH-IN HPSG grammars"
   homepage "http://sweaglesw.org/linguistics/ace/"
   url "http://sweaglesw.org/linguistics/ace/download/ace-0.9.26.tar.gz"
   sha256 "c082e3635f31c9bd8623f40443eb309fe63366e0f5eca292d35f60b668ba638a"
@@ -13,21 +13,21 @@ class AceAT0926 < Formula
     # Prepare Makefile for macOS
     inreplace "Makefile", "#include MacOSX.config", "include MacOSX.config"
     cd "post" do
-        inreplace "Makefile", "#include ../MacOSX.config", "include ../MacOSX.config"
+      inreplace "Makefile", "#include ../MacOSX.config", "include ../MacOSX.config"
     end
 
     # Clean up Makefile
     inreplace "Makefile", "-Wl,-soname", "-Wl,-install_name"
 
     # Clean up MacOSX.config for gcc
-     inreplace "MacOSX.config" do |s|
-       s.gsub! "CFLAGS+=-fnested-functions", "CFLAGS+="
-       s.gsub! "-lstdc++", "-lc++"
-       # support nonstandard install locations
-       s.gsub! "REPP_LIBS=/usr/local", "REPP_LIBS=#{HOMEBREW_PREFIX}"
-       s.gsub! "BOOST_REGEX_LIBS=/usr/local", "BOOST_REGEX_LIBS=#{HOMEBREW_PREFIX}"
+    inreplace "MacOSX.config" do |s|
+      s.gsub! "CFLAGS+=-fnested-functions", "CFLAGS+="
+      s.gsub! "-lstdc++", "-lc++"
+      # support nonstandard install locations
+      s.gsub! "REPP_LIBS=/usr/local", "REPP_LIBS=#{HOMEBREW_PREFIX}"
+      s.gsub! "BOOST_REGEX_LIBS=/usr/local", "BOOST_REGEX_LIBS=#{HOMEBREW_PREFIX}"
     end
-    
+
     # Small code changes (for gcc?)
     inreplace "type.c", "int		glb_type_count;", "//int		glb_type_count;"
 
@@ -303,8 +303,8 @@ iv := intransitive-verb-lex &
 "
 
     repp = <<~EOS
-    : +
-    !^(.+)$								 \\1\s
+      : +
+      !^(.+)$								 \\1\s
     EOS
 
     (testpath/"config.tdl").write config

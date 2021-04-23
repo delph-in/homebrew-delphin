@@ -20,9 +20,9 @@ class Repp < Formula
 
   test do
     (testpath/"test.rpp").write <<~EOS
-    : +
-    !^(.+)$								 \\1 
-    !([^ ])(n't) 						\\1 \\2 
+      : +
+      !^(.+)$								 \\1#{" "}
+      !([^ ])(n't) 						\\1 \\2#{" "}
     EOS
     assert_equal "do n't", shell_output("echo \"don't\" | #{bin}/repp test.rpp").strip
   end
