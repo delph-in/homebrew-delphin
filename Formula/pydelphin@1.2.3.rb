@@ -1,10 +1,10 @@
-class Pydelphin < Formula
+class PydelphinAT123 < Formula
   include Language::Python::Virtualenv
 
   desc "Python libraries for DELPH-IN"
   homepage "https://github.com/delph-in/pydelphin"
-  url "https://github.com/delph-in/pydelphin/archive/v1.5.1.tar.gz"
-  sha256 "0fda880ecbb2f321ab6227945503d2268623347b224ca3ab061762dea1b43f82"
+  url "https://github.com/delph-in/pydelphin/archive/v1.2.3.tar.gz"
+  sha256 "273b1429c91c7579fccc5fa7cfe9a5fe2185fb4cb65d73823ccf964e8db751de"
 
   depends_on "delph-in/delphin/ace"
   depends_on "python"
