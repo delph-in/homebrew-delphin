@@ -3,8 +3,8 @@ class Pydelphin < Formula
 
   desc "Python libraries for DELPH-IN"
   homepage "https://github.com/delph-in/pydelphin"
-  url "https://github.com/delph-in/pydelphin/archive/v1.2.3.tar.gz"
-  sha256 "273b1429c91c7579fccc5fa7cfe9a5fe2185fb4cb65d73823ccf964e8db751de"
+  url "https://github.com/delph-in/pydelphin/archive/v1.5.1.tar.gz"
+  sha256 "0fda880ecbb2f321ab6227945503d2268623347b224ca3ab061762dea1b43f82"
 
   depends_on "delph-in/delphin/ace"
   depends_on "python"
@@ -17,11 +17,6 @@ class Pydelphin < Formula
   resource "progress" do
     url "https://files.pythonhosted.org/packages/38/ef/2e887b3d2b248916fc2121889ce68af8a16aaddbe82f9ae6533c24ff0d2b/progress-1.5.tar.gz"
     sha256 "69ecedd1d1bbe71bf6313d88d1e6c4d2957b7f1d4f71312c211257f7dae64372"
-  end
-
-  resource "PyDelphin" do
-    url "https://files.pythonhosted.org/packages/3f/cb/5dc539f06ffa3ca183cf435db69fad0b3ee1ed669b5447a73b988e7395c8/PyDelphin-1.2.3.tar.gz"
-    sha256 "3ffc4a4ffdc4a94a393d57153011934338f5d5f0eda4b780e959a5675bb48589"
   end
 
   def install
