@@ -5,6 +5,7 @@ class Pydelphin < Formula
   homepage "https://github.com/delph-in/pydelphin"
   url "https://github.com/delph-in/pydelphin/archive/v1.5.1.tar.gz"
   sha256 "0fda880ecbb2f321ab6227945503d2268623347b224ca3ab061762dea1b43f82"
+  revision 1
 
   depends_on "delph-in/delphin/ace"
   depends_on "python"
