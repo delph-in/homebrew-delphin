@@ -5,6 +5,11 @@ class Ace < Formula
   sha256 "65ab649096e3e6432b379170836943c8838ef2086e9cf5df87ce696de54574ae"
   head "http://sweaglesw.org/svn/ace/trunk", using: :svn
 
+  bottle do
+    root_url "https://github.com/delph-in/homebrew-delphin/releases/download/ace-0.9.34"
+    sha256 cellar: :any, big_sur: "55c820f5b14bb23ef20e47a9d5f3f7a25a3cd343480ea6d9541e3082adedc35f"
+  end
+
   depends_on "boost" => :build
   depends_on "delph-in/delphin/repp" => :build
 
