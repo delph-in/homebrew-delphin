@@ -5,8 +5,8 @@ class Repp < Formula
   sha256 "1b805ac7bc3a338f61e41f3cc651e9711e64f3ac86da606c262cee014055b721"
 
   bottle do
-    rebuild 1
-    sha256 cellar: :any, big_sur: "f9acf24f7ea741a826a576dbe9ab6d809e9e76018a08e1e3ed3ccb53667ae13b"
+    root_url "https://github.com/delph-in/homebrew-delphin/releases/download/repp-0.2.2"
+    sha256 cellar: :any, big_sur: "8caa2042a2c703c6d000ee846199fbb0a48229970e7556b86efd5d1b8a8a7dc6"
   end
 
   depends_on "automake" => :build
