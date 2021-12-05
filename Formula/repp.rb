@@ -6,7 +6,8 @@ class Repp < Formula
 
   bottle do
     root_url "https://github.com/delph-in/homebrew-delphin/releases/download/repp-0.2.2"
-    sha256 cellar: :any, big_sur: "8caa2042a2c703c6d000ee846199fbb0a48229970e7556b86efd5d1b8a8a7dc6"
+    sha256 cellar: :any, big_sur:  "8caa2042a2c703c6d000ee846199fbb0a48229970e7556b86efd5d1b8a8a7dc6"
+    sha256 cellar: :any, monterey: "adcddcafa4b561c6eb16378517944a28a13d84cbe5ef13f0da8c47dd9630283e"
   end
 
   depends_on "automake" => :build
