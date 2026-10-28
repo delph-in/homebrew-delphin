@@ -1,49 +1,60 @@
 class Ace < Formula
   desc "Efficient processor for DELPH-IN HPSG grammars"
-  homepage "http://sweaglesw.org/linguistics/ace/"
-  url "http://sweaglesw.org/linguistics/ace/download/ace-0.9.34.tar.gz"
-  sha256 "65ab649096e3e6432b379170836943c8838ef2086e9cf5df87ce696de54574ae"
-  head "http://sweaglesw.org/svn/ace/trunk", using: :svn
+  homepage "https://sweaglesw.org/linguistics/ace/"
 
-  bottle do
-    root_url "https://github.com/delph-in/homebrew-delphin/releases/download/ace-0.9.34"
-    sha256 cellar: :any, big_sur:  "55c820f5b14bb23ef20e47a9d5f3f7a25a3cd343480ea6d9541e3082adedc35f"
-    sha256 cellar: :any, monterey: "fcfe79fd4afc1be047a6bd1a319d71e8a568f218bf0b6252649304951f81a48b"
+  # The 0.9.34 release tarball (2021) predates trunk fixes for Apple Silicon
+  # (e.g. FREEZER_MMAP_BASE moved to 0x7000000000 in r1096), so build a pinned
+  # trunk revision instead. SVN is only served over plain HTTP, so this is a
+  # checksummed export of r1097 (identical to delph-in/ace commit 31afda8).
+  stable do
+    url "https://github.com/delph-in/homebrew-delphin/releases/download/ace-0.9.34-r1097/ace-0.9.34-r1097.tar.gz"
+    version "0.9.34-r1097"
+    sha256 "3a723496ad05a0d85a4237c65b258b69aa5f5343301ec6b526766dcea66249f7"
+
+    # walk_dg() varargs were terminated with int 0 instead of NULL; on Apple
+    # arm64 this crashes when loading grammars with transfer/trigger rules.
+    # https://github.com/delph-in/ace/pull/1
+    patch :DATA
+  end
+
+  head do
+    url "http://sweaglesw.org/svn/ace/trunk", using: :svn
+    depends_on "subversion" => :build
   end
 
   depends_on "boost" => :build
   depends_on "delph-in/delphin/repp" => :build
+  depends_on "gcc" => :build
 
+  # qcparse.c still uses GCC nested functions
   fails_with :clang
 
   def install
-    # Prepare Makefile for macOS
+    # Boost >= 1.8x includes <boost/assert.hpp> from boost/regex/config.hpp
+    # even in C builds, which breaks <boost/regex.h>.
+    (buildpath/"compat/boost/assert.hpp").write <<~EOS
+      #ifdef __cplusplus
+      #include_next <boost/assert.hpp>
+      #else
+      #include <assert.h>
+      #define BOOST_ASSERT(x) assert(x)
+      #endif
+    EOS
+
+    # Modern GCC rejects some legacy C (implicit int, implicit declarations);
+    # downgrade only those errors back to warnings.
+    File.write "MacOSX.config", <<~EOS
+      CFLAGS+=-std=gnu17 -Wno-error=implicit-int -Wno-error=implicit-function-declaration -Wno-error=incompatible-pointer-types -I#{buildpath}/compat -DMACOSX_GCC -isystem #{HOMEBREW_PREFIX}/include
+      POST_LIBS=-lutil
+      REPP_LIBS=#{formula_opt_lib("delph-in/delphin/repp")}/librepp.a
+      BOOST_REGEX_LIBS=#{formula_opt_lib("boost")}/libboost_regex.a -lc++
+      DELPHIN_CFLAGS=
+      DELPHIN_LIBS=
+      EXPORT_DYNAMIC_CFLAG=
+    EOS
     inreplace "Makefile", "#include MacOSX.config", "include MacOSX.config"
-    cd "post" do
-      inreplace "Makefile", "#include ../MacOSX.config", "include ../MacOSX.config"
-    end
 
-    # Clean up Makefile
-    inreplace "Makefile", "-Wl,-soname", "-Wl,-install_name"
-
-    # Clean up MacOSX.config for gcc
-    inreplace "MacOSX.config" do |s|
-      s.gsub! "CFLAGS+=-fnested-functions", "CFLAGS+="
-      s.gsub! "-lstdc++", "-lc++"
-      # support nonstandard install locations
-      s.gsub! "REPP_LIBS=/usr/local", "REPP_LIBS=#{HOMEBREW_PREFIX}"
-      s.gsub! "BOOST_REGEX_LIBS=/usr/local", "BOOST_REGEX_LIBS=#{HOMEBREW_PREFIX}"
-    end
-
-    # Small code changes (for gcc?)
-    unless build.head?
-      inreplace "conf.h", "struct path	robustness_marker_path;", "extern struct path	robustness_marker_path;"
-      inreplace "conf.h", "char		*robustness_marker_type;", "extern char		*robustness_marker_type;"
-      inreplace "type.c", "int		glb_type_count;", "//int		glb_type_count;"
-    end
-
-    # Build
-    system "make", "ace"
+    system "make", "ace", "CC=#{ENV.cc}"
     bin.install "ace"
   end
 
@@ -302,15 +313,13 @@ iv := intransitive-verb-lex &
     SYNSEM.LKEYS.KEYREL.PRED \"_iv_v_rel\" ].
 "
 
-    qc = "QC_SIZE(8)
- REC(5)
- PUSH(SYNSEM) PUSH(LOCAL) PUSH(CONT) PUSH(HOOK) PUSH(INDEX) REC(7) POP POP POP
-         PUSH(CAT) PUSH(HEAD) REC(0)
-                 PUSH(MOD) REC(1) POP
-                 PUSH(FORM) REC(3) POP POP
-             PUSH(VAL) PUSH(SUBJ) REC(6) POP
-                 PUSH(SPR) REC(4) POP
-                 PUSH(COMPS) REC(2)
+    # only paths through features the grammar above declares; newer ACE
+    # rejects quickcheck paths with unknown features such as MOD or COMPS
+    qc = "QC_SIZE(4)
+ REC(3)
+ PUSH(SYNSEM) PUSH(LOCAL) PUSH(CONT) PUSH(HOOK) PUSH(INDEX) REC(2) POP POP POP
+         PUSH(CAT) PUSH(HEAD) REC(0) POP
+             PUSH(VAL) PUSH(SUBJ) REC(1) POP
 "
 
     repp = <<~EOS
@@ -328,7 +337,48 @@ iv := intransitive-verb-lex &
     (testpath/"vanilla.rpp").write repp
 
     system bin/"ace", "-g", "config.tdl", "-G", testpath/"grammar.dat"
-    assert_match shell_output("echo \"n1 iv\" | #{bin}/ace -g #{testpath}/grammar.dat").strip,
-    "SENT: n1 iv\n[ LTOP: h0 INDEX: event2 RELS: < [ \"_n1_n_rel\"<-1:-1> LBL: handle3 ARG0: ref-ind4 ]  [ \"_iv_v_rel\"<-1:-1> LBL: handle1 ARG0: event2 ARG1: ref-ind5 ] > HCONS: < h0 qeq handle1 > ] ;  (8 subj-head 0.000000 0 2 (3 n1 0.000000 0 1 (\"n1\")) (4 iv 0.000000 1 2 (\"iv\")))".strip
+    expected = "SENT: n1 iv\n" \
+               "[ LTOP: h0 INDEX: event2 RELS: < " \
+               "[ \"_n1_n_rel\"<-1:-1> LBL: handle3 ARG0: ref-ind4 ]  " \
+               "[ \"_iv_v_rel\"<-1:-1> LBL: handle1 ARG0: event2 ARG1: ref-ind5 ] > " \
+               "HCONS: < h0 qeq handle1 > ] ;  " \
+               "(8 subj-head 0.000000 0 2 (3 n1 0.000000 0 1 (\"n1\")) (4 iv 0.000000 1 2 (\"iv\")))"
+    output = shell_output("echo \"n1 iv\" | #{bin}/ace -g #{testpath}/grammar.dat")
+    assert_equal expected, output.lines.first(2).join.strip
   end
 end
+
+__END__
+diff --git a/transfer.c b/transfer.c
+index ec0d30a..0627e5b 100644
+--- a/transfer.c
++++ b/transfer.c
+@@ -245,7 +245,7 @@ void	process_saved_tcopy(struct transfer_rule	*r, struct tcopy	*c)
+ void warn_about_equals(struct transfer_rule	*tr)
+ {
+ 	static int	eqpath[5]={-1};
+-	struct dg	*eql = walk_dg(tr->dg, eqpath, "FLAGS", "EQUAL", 0);
++	struct dg	*eql = walk_dg(tr->dg, eqpath, "FLAGS", "EQUAL", NULL);
+ 	while(eql && dg_hop(eql, 1))
+ 	{
+ 		struct dg	*eq = dg_hop(eql, 1);
+@@ -263,7 +263,7 @@ struct transfer_rule	*dg_to_transfer_rule(char	*name, struct dg	*dg, struct dg	*
+ 	struct transfer_rule	*tr = calloc(sizeof(struct transfer_rule), 1);
+ 	tr->name = strdup(name);
+ 	static int flagspath[5] = {-1,-1};
+-	struct dg	*optdg = walk_dg(dg, flagspath, "FLAGS", "OPTIONAL", 0);
++	struct dg	*optdg = walk_dg(dg, flagspath, "FLAGS", "OPTIONAL", NULL);
+ 	tr->optional = optdg?(!strcmp(optdg->xtype->name, "+")):0;
+ 	tr->dg = dg;
+ 	tr->output_override = output_override;
+@@ -458,8 +458,8 @@ int	freeze_transfer_rule_more(struct transfer_rule	*tr)
+ 	bzero(tr->ss, sizeof(struct dg*)*10);
+ 	tr->neq = tr->nss = 0;
+ 	static int	eqpath[5]={-1}, sspath[5]={-1};
+-	struct dg	*eql = walk_dg(tr->dg, eqpath, "FLAGS", "EQUAL", 0);
+-	struct dg	*ssl = walk_dg(tr->dg, sspath, "FLAGS", "SUBSUME", 0);
++	struct dg	*eql = walk_dg(tr->dg, eqpath, "FLAGS", "EQUAL", NULL);
++	struct dg	*ssl = walk_dg(tr->dg, sspath, "FLAGS", "SUBSUME", NULL);
+ 	//printf("eql = \n");
+ 	//print_dg(eql); printf("\n");
+ 	while(eql && dg_hop(eql, 1))
