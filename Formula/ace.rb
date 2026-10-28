@@ -1,14 +1,15 @@
 class Ace < Formula
   desc "Efficient processor for DELPH-IN HPSG grammars"
-  homepage "http://sweaglesw.org/linguistics/ace/"
-  head "http://sweaglesw.org/svn/ace/trunk", using: :svn
+  homepage "https://sweaglesw.org/linguistics/ace/"
 
   # The 0.9.34 release tarball (2021) predates trunk fixes for Apple Silicon
   # (e.g. FREEZER_MMAP_BASE moved to 0x7000000000 in r1096), so build a pinned
-  # trunk revision instead. GitHub's delph-in/ace mirrors this SVN repository.
+  # trunk revision instead. SVN is only served over plain HTTP, so this is a
+  # checksummed export of r1097 (identical to delph-in/ace commit 31afda8).
   stable do
-    url "http://sweaglesw.org/svn/ace/trunk", using: :svn, revision: "1097"
+    url "https://github.com/delph-in/homebrew-delphin/releases/download/ace-0.9.34-r1097/ace-0.9.34-r1097.tar.gz"
     version "0.9.34-r1097"
+    sha256 "3a723496ad05a0d85a4237c65b258b69aa5f5343301ec6b526766dcea66249f7"
 
     # walk_dg() varargs were terminated with int 0 instead of NULL; on Apple
     # arm64 this crashes when loading grammars with transfer/trigger rules.
@@ -16,10 +17,14 @@ class Ace < Formula
     patch :DATA
   end
 
+  head do
+    url "http://sweaglesw.org/svn/ace/trunk", using: :svn
+    depends_on "subversion" => :build
+  end
+
   depends_on "boost" => :build
   depends_on "delph-in/delphin/repp" => :build
   depends_on "gcc" => :build
-  depends_on "subversion" => :build
 
   # qcparse.c still uses GCC nested functions
   fails_with :clang
